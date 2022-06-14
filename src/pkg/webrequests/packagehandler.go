@@ -7,12 +7,13 @@ import (
 )
 
 func PackageRootHandler(w http.ResponseWriter, r *http.Request) {
-  // now we want to successfully handle each variation of the URL possible
-  logger.InfoLogger.Println(r.URL.Path)
-  //switch r.URL.Path {
-  //case "/api/packages":
-    //
-  //}
+  // We can expect GET and POST requests here to list or create packages
+  if r.Method == "GET" {
+
+  } else if r.Method == "POST" {
+
+  }
+  // ELSE
 }
 
 func PackageSearchHandler(w http.ResponseWriter, r *http.Request) {
@@ -47,5 +48,5 @@ func PackageVersionHandler(w http.ResponseWriter, r *http.Request) {
   vars := mux.Vars(r)
   packageName := vars["package_name"]
   versionName := vars["version_name"]
-  
+
 }

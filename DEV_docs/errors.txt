@@ -1,0 +1,132 @@
+Review of the error messages able to be retrieved via atom.io
+
+Request:                              Error:
+GET /api/packages/{invalid_name}      {"message":"Not Found"}
+GET /api/packagesZ/{name}             [SITEWIDE 404 PAGE]
+POST /api/packages                    {"message":"Requires authentication. Please update your token if you haven't done so recently."}
+DELETE /api/packages                  [SITEWIDE 404 PAGE]
+GET /api/packages/{invalid_name}/stars  [SITEWIDE 404 PAGE]
+GET /api/packages/{namew/oStars}/stargazers []
+GET /api/users/{invalid_name}/stars   {"message":"Not found"}
+GET /api/users/{valid_user_w/o_stars}/stars []
+
+REQUEST DURING SERVER ERROR:          {"message":"Application error"} STATUS: 500
+
+Summary:
+
+It seems any valid request, in the event of an error, will be meet with a JSON response, containing a message object.
+
+DEFINED RESPONSES:
+
+SERVER_ERROR:
+  "message": "Application error"
+  STATUS: 500
+
+MISSING_AUTH:
+  "message": "Requires authentication. Please update your token if you haven't done so recently."
+  STATUS: 401
+
+SITEWIDE_NOT_FOUND:
+  HTML 404 Page
+  STATUS: 404
+
+JSON_NOT_FOUND:
+  "message": "Not Found"
+  STATUS: 404
+
+JSON_NOT_found:
+  "message": "Not found"
+  STATUS: 404
+
+Its a strange distinction but it seems the errors between /api/users and /api/packages has different error handling.
+  Noticeable because /api/packages/{invalid_name} returns "message": "Not Found"
+  Meanwhile /api/users/{invalid_name}/stars returns       "message": "Not found"
+
+Notes:
+* Query parameters are ignored if invalid and default to their respective default.
+* Search with no required query return empty array.
+* /api/packages/search?q={ Only searches the Title field of packages. Ignoring other fields during searches. }
+  - But searches will likely need to be its own deep dive.
+
+Interpretation 1 Philosophy:
+
+* Query Parameters are optional and will be ignored if invalid. If the request is valid returning something is priority
+* Invalid request methods always return the sitewide 404
+* Any failed authentication attempt returns the same MISSING_AUTH response.
+* Referencing Invalid Packages returns JSON_NOT_FOUND that is "Not Found"
+* Referencing Stars with Invalid Users/Packages returns JSON_NOT_found that is "Not found"
+
+The valid Response Codes: 500, 404, 401, 200
+
+--------------------------------------------------------------------------------
+
+Additional Tests:
+
+GET /api/packages
+  STATUS: 200
+  Content: JSON Array of content default sorted
+
+GET /api/packages/
+  STATUS: 200
+  Content: JSON Array of content default sorted.
+
+POST /api/packages/
+  STATUS: 401
+  Content: MISSING_AUTH response.
+
+POST /api/packages
+  STATUS: 401
+  Content: MISSING_AUTH response.
+
+DELETE /api/packages
+  STATUS: 404
+  Content: SITEWIDE_NOT_FOUND response.
+
+DELETE /api/packages/{valid_name}
+  STATUS: 401
+  Content: MISSING_AUTH
+
+GET /api/packages/{valid_name}
+  STATUS: 200
+  Content: JSON Object of package
+
+GET /api/packages/{invalid_name}
+  STATUS: 404
+  Content: JSON_NOT_FOUND
+
+POST /api/packages/{valid_name}
+  STATUS: 404
+  Content: SITEWIDE_NOT_FOUND
+
+GET /api/packages/{valid_name}/star
+  STATUS: 404
+  Content: SITEWIDE_NOT_FOUND
+
+POST /api/packages/{valid_name}/star
+DELETE /api/packages/{valid_name}/star
+  STATUS: 401
+  Content: MISSING_AUTH
+
+GET /api/packages/{valid_name}/stargazers
+  STATUS: 200
+  Content: Array of user objects (even if array is empty)
+
+POST /api/packages/{valid_name}/stargazers
+  STATUS: 404
+  Content: SITEWIDE_NOT_FOUND
+
+GET /api/packages/{invalid_name}/stargazers
+  STATUS: 404
+  Content: JSON_NOT_found
+
+POST /api/packages/{valid_name}/versions
+  STATUS: 401
+  Content: MISSING_AUTH
+
+GET /api/packages/{valid_name}/versions
+  STATUS: 404
+  Content: SITEWIDE_NOT_FOUND
+
+GET /api/users/{invalid_user}/stars
+  STATUS: 404
+  Content: JSON_NOT_found

@@ -25,6 +25,8 @@ func main() {
 
   // ======== ORIGINAL API SERVER ENDPOINTS ==========
 
+  // ERRORS: It seems that other than the frequent 5
+
   // This is the major handler for all Packages
   // -- List Packages: GET /api/packages
   // -- Search Packages: GET /api/packages/search

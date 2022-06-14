@@ -1,0 +1,141 @@
+/api/packages/search?q=
+
+Their search is one that may not need to be replicated perfectly or may be impossible without any internal insight.
+
+But here is the best attempt with some testing.
+
+If no other parameters are specified the defaults are as follows:
+  sort=downloads
+  order=desc
+
+
+* It seems the only content a search query is compared against is the "name" field.
+
+----------------------------------------------------------------------------
+
+Testing: (all with default parameters)
+
+q=g
+[
+  {
+    "name": "search-github",
+    "downloads": 357,
+    "stargazers_count": 0,
+  },
+  {
+    "name": "shebang-set-grammer",
+    "downloads": 1488,
+    "stargazers_count": 5,
+  },
+  {
+    "name": "language-todo-extended",
+    "downloads": 378,
+    "stargazers_count": 0
+  }
+]
+
+Whats interesting with the above is if all things were equal and this were organized by stars in descending order:
+  [ shebang-set-grammer, language-todo-extended, search-github ]
+So its easy to assume that search-github is assumed to be the best result for g.
+
+Possible meanings:
+  shebang-set-grammer: 'g' occurs 7 chars in, at the end of the word first. But contains 2 instances
+  search-github: 'g' occurs 8 chars in, but if accounting for '-' as a word separator at the beggining of the word.
+                  with only 1 instance.
+  langauge-todo-extended: 'g' occurs 4 chars in, contains 2 instances but both within mid word.
+
+Search Assumptions:
+  - Priority is given to searches matching the beginning of the haystack, with '-' accounting as a word seperator.
+  - Download count is more important than instance of needle occurrence.
+  - Stargazers count has no effect on search priority.
+
+// This next test aims to determine the use of fuzzy string matching:
+// INSERTION:
+q=earch
+[
+  {
+    "name": "search-github",
+    "downloads": 357
+  },
+  {
+    "name": "pysearch",
+    "downloads": 437
+  },
+  {
+    "name": "search",
+    "downloads": 1030
+  }
+]
+
+Meanings:
+  * This does support the idea that there is some level of insertion fuzzy matching taking place.
+  * Its very interesting to see the shorter edit distance with higher downloads being lower on our rankings,
+    with the highest ranked item also being our lowest download value, and largest insertion distance.
+  * One explanation for this is that how recent stars are acquired is taken into consideration.
+
+// DELETION
+q=seearch
+[]
+
+Meanings:
+  * No deletion fuzzy matching or edit distances are considered at all.
+
+// SUBSTITUTION
+q=ssarch
+[]
+
+Meaings:
+  * No substitution fuzzy matching or edit distances are considered at all.
+
+q=ithub
+[
+  {
+    "name": "search-github",
+    "downloads": 357
+  },
+  {
+    "name": "github-issues",
+    "downloads": 3320
+  },
+  {
+    "name": "github",
+    "downloads": 92343
+  }
+]
+
+Meanings:
+  * This one is really a headscratcher. Almost seeming like a bias internally. Or remembering my previous searches.
+    But this isn't supposed to be a conspiracy.
+  * Initially I believed this could be suffix first (Boyer-Moore approach) but this wouldn't validate the 3 result.
+  * The third result has more stars then others combined, has a shorted edit distance, and for all intents and purposes
+    could even be considered the better match out of the above.
+  * At this point this last check seemed to raise more questions than answers, or there is a search algorithm or
+    stat I'm not seeing.
+
+q=md
+[
+  {
+    name: mdurl,
+    downloads: 49
+  },
+  {
+    name: atom-mdn,
+    downloads: 0,
+  },
+  {
+    name: mdn,
+    downloads: 0
+  }
+]
+
+Meanings:
+  * This looks more traditional. Using something like the Levenshtein Distance to compute edit distance
+    from names to my search string. Then organizing by downloads.
+  Edit Distance: (Levenshtein Distance)
+  md - mdurl = 3
+  md - atom-mdn = 6
+  md - mdn = 1
+
+  * Even still the 2nd and 3rd result, same exact download count but ones edit-distance being higher than the other.
+  * Unless the distance is calculated on a per 'word' basis, which would give the last two an equal distance.
+    And at that point could be up to whichever was read from disk first.

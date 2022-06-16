@@ -1,0 +1,19 @@
+{
+  "name": "test-package",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/confused-Techie/atom-community-server-backend"
+  },
+  "releases": {
+    "latest": "0.2.3"
+  },
+  "readme": "Hello this is a read me.",
+  "metadata": {
+    "name": "test-package",
+    "main": "./lib/test-package/file.js",
+    "version": "0.2.3",
+    "description": "hello this is a description",
+    "repository": "https://github.com/confused-Techie/atom-community-server-backend",
+    "license": "TBD"
+  }
+}

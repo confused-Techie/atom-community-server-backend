@@ -1,0 +1,115 @@
+Along with the packages theres a few key peices of data to manage.
+
+Packages:
+  * The actual JSON object for the package, which is really a heavily modified version of the standard package.json
+    file
+
+Stars:
+  * The packages can be stared and these stars are separate to GitHub stars and should be saved directly to the package.
+
+Users:
+  * Each user can star packages, and this star is saved for that user, available to be viewed later.
+    In order for any kind of speed in finding a star, this should be saved per user, in their own file.
+  * Users will also have some type of auth which could likely be stored here as well.
+
+Pointer:
+  * Since packages can change name and change owner, there likely needs to be some way to reference them.
+
+
+Plan:
+
+data/
+  /packages
+    /packages_pointer.json
+      * This will be a JSON file, with package names as keys, and references to the file name as values.
+      * Because old package names forward to the new package, if a package changes this can just add another
+        key/value pair with the new name to the same package file, and multiple keys can exist for the same value.
+    /content
+      * This will be a giant folder of each package.json file, saved under its identifier.
+      * This identifier will likely just be a randomly generated UUIDv4 ID, which will server as the package name.
+        Also whats referenced in the packages_pointer.json file.
+  /users
+    * This can be a large folder of each user, with a file saved by their file_friendly user name, with an array
+      inside of all their stared packages.
+
+Data Format Plan:
+
+Inside the package files, there should also be an array of each user that has stared the package, in the format
+thats returned by the API when asking for stargazers
+Additionally with all of its other details there.
+
+In this way we can have speed looking up direct packages by referencing the packages_pointer file, then doing
+  a lookup against the actual file.
+
+We can have speed looking at a users stared packages.
+We also have speed looking at users that star a package.
+And we do all of this with well laid out files, and hopefully fast and easy to read individual files.
+
+Of course this data should be cached once read, and should likely be read during the init of the server.
+Where it will build its search index.
+
+But afterwards this cache can be reffered to to read from, with the ability to update it if the original has changed.
+
+Package Code:
+
+The Code for this, should have an init that reads all of the packages, using the pointer file.
+And afterwards stores these in the cache, or for now a global variable.
+
+From there we can write some high level functions to interact with a method that returns the global variable and
+  in the future will handle the cached data.
+
+These functions to read can rely on the method holding the variable, and have specialized shared methods such as getting all
+  or finding a specific package.
+
+
+==============================================================================
+
+Alternatively:
+
+The Packages_Pointer actuall contains much more data.
+
+Really all data that may be required during a search operation, to help keep this a light workload.
+Meaning this is the only file that has to be loaded and managed for searches, or searching, then when the result
+is found the in memory result read from its individual file can be returned.
+
+This object in packages_pointer can additionally contain all this data, as well as contain the stars, including
+all users that have stared the project. Its downloads, maybe even a list of users that have downloaded it.
+And finally a created_at and updated_at variable to hold the time it was made, and the time it was last modified.
+
+In this case using an index seems to be the most reasonable approch. To perform as best as possible, as well
+  as make data retrieval and manipulation easiest.
+
+## Pointer Object:
+[
+  {
+    "name": "name",
+    "names": [ "name", "name-after-change" ]
+    "pointer": "filename.json",
+    "downloads": 10,
+    "stargazers_count": 0,
+    "stargazers": [ PROPER_ARRAY_OF_USERS_IN_FORMAT_NEEDED ],
+    "created_at": time,
+    "update_at": time,
+  }
+]
+
+This format makes all searchable fields easily accessible. The searchable name would be its basic name,
+but when linking to the package we will use all names in the array.
+
+During init an in memory object can be constructed to have an index of each name as a key, pointing to its pointer.
+
+## Package Object:
+{
+  "name": "name",
+  "repository": {
+    "type": "git",
+    "url": "github"
+  },
+  "releases": {
+    "latest": "0.2.3"
+  },
+  "readme": "package readme",
+  "metadata": {
+    It then seems that this is any standard package.json file, wholly encompased here.
+  }
+}

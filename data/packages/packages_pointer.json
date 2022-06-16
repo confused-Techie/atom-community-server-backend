@@ -1,0 +1,12 @@
+[
+  {
+    "name": "test-package",
+    "names": [ "test-package" ],
+    "pointer": "1.json",
+    "downloads": 1,
+    "stargazers_count": 20,
+    "stargazers": ["confused-Techie"],
+    "created_at": "unknown",
+    "updated_at": "unknown"
+  }
+]

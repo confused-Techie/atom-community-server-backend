@@ -3,10 +3,30 @@
     "name": "test-package",
     "names": [ "test-package" ],
     "pointer": "1.json",
-    "downloads": 1,
+    "downloads": 100,
     "stargazers_count": 20,
     "stargazers": ["confused-Techie"],
     "created_at": "unknown",
+    "updated_at": "unknown"
+  },
+  {
+    "name": "server-package",
+    "names": [ "server-package" ],
+    "pointer": "2.json",
+    "downloads": 0,
+    "stargazers_count": 0,
+    "stargazers": [],
+    "created_at": "unkown",
+    "updated_at": "unkown"
+  },
+  {
+    "name": "github-server",
+    "names": [ "github-server", "my-fun-server" ],
+    "pointer": "3.json",
+    "downloads": 4,
+    "stargazers_count": 1,
+    "stargazers": [ "confused-Techie" ],
+    "created_at": "unkown",
     "updated_at": "unknown"
   }
 ]

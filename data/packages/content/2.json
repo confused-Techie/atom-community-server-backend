@@ -1,0 +1,19 @@
+{
+  "name": "server-package",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/confused-Techie/atom-community-server-backend"
+  },
+  "releases": {
+    "latest": "1.0.0"
+  },
+  "readme": "Hello this is server-package readme!",
+  "metadata": {
+    "name": "server-package",
+    "main": "./lib/server-package/file.js",
+    "version": "1.0.0",
+    "description": "hello from server-package desc",
+    "repository": "https://github.com/confused-Techie/atom-community-server-backend",
+    "license": "TBD"
+  }
+}
